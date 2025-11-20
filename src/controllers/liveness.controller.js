@@ -15,6 +15,8 @@ export async function startLiveness(req, res) {
     const sessionId = await createLivenessSession();
     const credentials = await getTemporaryCredentials(sessionId);
 
+    console.log("Liveness session started:", sessionId);
+
     return res.json({
       sessionId,
       credentials
