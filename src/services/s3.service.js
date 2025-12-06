@@ -5,6 +5,8 @@ import { s3Client } from "../config/aws.js";
 const BUCKET = process.env.S3_BUCKET;
 
 export async function uploadPhoto(buffer, key) {
+  console.log("Uploading photo to S3 bucket:", process.env.S3_BUCKET);
+
   await s3Client.send(
     new PutObjectCommand({
       Bucket: BUCKET,
