@@ -11,6 +11,9 @@ import {
   getSignedPhotoUrl,
 } from "../services/s3.service.js";
 
+import crypto from "crypto";
+
+
 export async function startLiveness(req, res) {
   try {
     const sessionId = await createLivenessSession();
@@ -63,7 +66,7 @@ export async function getResult(req, res) {
 
 export async function getPhoto(req, res) {
   try {
-    const { photoKey } = req.params;
+    const { photoKey } = req.body;
 
     const url = await getSignedPhotoUrl(photoKey);
 
@@ -73,6 +76,59 @@ export async function getPhoto(req, res) {
     return res.status(500).json({ error: "Falló obtener la foto" });
   }
 }
+
+export async function uploadPhotoBase64(req, res) {
+  try {
+    const { imageBase64 } = req.body;
+
+    if (!imageBase64) {
+      return res.status(400).json({
+        error: "imageBase64 es requerida"
+      });
+    }
+
+    // ✅ detectar content-type desde base64
+    const matches = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+
+    if (!matches) {
+      return res.status(400).json({
+        error: "Formato base64 inválido"
+      });
+    }
+
+    const contentType = matches[1];       // image/png, image/jpeg...
+    const base64Data = matches[2];
+
+    const buffer = Buffer.from(base64Data, "base64");
+
+    // ✅ límite 10MB
+    const maxSize = 10 * 1024 * 1024;
+    if (buffer.length > maxSize) {
+      return res.status(413).json({
+        error: "La imagen supera los 10MB"
+      });
+    }
+
+    // ✅ extensión según content-type
+    const ext = contentType.split("/")[1]; // png, jpeg, webp...
+
+    const photoKey = `liveness/${crypto.randomUUID()}.${ext}`;
+
+    await uploadPhoto(buffer, photoKey);
+
+    return res.status(201).json({
+      message: "Imagen subida correctamente",
+      photoKey
+    });
+
+  } catch (error) {
+    console.error("Error in uploadPhotoController:", error);
+    return res.status(500).json({
+      error: "Falló la subida de la imagen"
+    });
+  }
+}
+
 
 export async function compareFaces(req, res) {
   try {
