@@ -45,16 +45,15 @@ export async function getResult(req, res) {
     const uint8 = result.ReferenceImage.Bytes;
     const base64 = Buffer.from(uint8).toString("base64");
 
-    console.log("Uploading photo to S3 bucket:", process.env.S3_BUCKET);
+    //console.log("Uploading photo to S3 bucket:", process.env.S3_BUCKET);
 
-    await uploadPhoto(buffer, photoKey);
+    //await uploadPhoto(buffer, photoKey);
 
     return res.json({
       status: "done",
       photoKey,
       confidenceScore: result.ConfidenceScore,
-      referenceImageBase64: base64,
-      mime: "image/jpeg"
+      referenceImageBase64: base64
     });
   } catch (error) {
     console.error("Error in getResult:", error);
