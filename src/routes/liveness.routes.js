@@ -11,9 +11,9 @@ const router = express.Router();
 
 router.post("/start", startLiveness);
 router.post("/compare", compareFaces);
-router.post("/photo", uploadPhotoBase64);
+router.post("/photo/upload", uploadPhotoBase64);
 router.get("/result/:sessionId", getResult);
-router.get("/photo/", getPhoto);
+router.post("/photo/signedUrl", getPhoto);
 
 
 export default router;
